@@ -101,6 +101,7 @@ function getCookie(name) {
     return v ? v[2] : null;
 }
 
+//Pengecekan doang
 fetch('http://localhost:3000/api/getUser')
    .then(response => response.json())
    .then(datas=>{
