@@ -18,6 +18,7 @@ self.addEventListener('sync',function(event){
   }
 });
 
+
 workbox.precaching.precacheAndRoute([
   {
     "url": "css/main.css",
@@ -33,11 +34,11 @@ workbox.precaching.precacheAndRoute([
   },
   {
     "url": "fonts/font-awesome-4.7.0/css/font-awesome.css",
-    "revision": "c495654869785bc3df60216616814ad1"
+    "revision": "4bb3dd721c4652feee0953261d329710"
   },
   {
     "url": "fonts/font-awesome-4.7.0/css/font-awesome.min.css",
-    "revision": "269550530cc127b6aa5a35925a7de6ce"
+    "revision": "a0e784c4ca94c271b0338dfb02055be6"
   },
   {
     "url": "fonts/iconic/css/material-design-iconic-font.css",
@@ -53,11 +54,11 @@ workbox.precaching.precacheAndRoute([
   },
   {
     "url": "js/app.js",
-    "revision": "c88fb623d2703b7dc10f91abd1829644"
+    "revision": "31b9f8c004b40f894485a9f49f0bf900"
   },
   {
     "url": "js/idb-promised.js",
-    "revision": "8fb5c9b2f422347fb1a54827f2ff40a6"
+    "revision": "59df18a7433f090282337136440403f7"
   },
   {
     "url": "menu/index.html",
