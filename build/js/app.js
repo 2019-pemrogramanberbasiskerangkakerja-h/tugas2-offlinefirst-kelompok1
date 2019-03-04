@@ -37,6 +37,7 @@ if ('serviceWorker' in navigator) { //creating Service Worker
       }
       else{
         setCookie("username","",-1);
+        window.location.replace("http://localhost:3000/index.html");
       }
     });
   }
