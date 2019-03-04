@@ -18,4 +18,5 @@ self.addEventListener('sync',function(event){
   }
 });
 
+
 workbox.precaching.precacheAndRoute([]);
