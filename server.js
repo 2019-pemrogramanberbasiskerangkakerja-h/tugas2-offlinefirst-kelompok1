@@ -2,9 +2,9 @@
 const express = require('express');
 const nSQL = require('nano-sql').nSQL;
 var data = require('./user-data.json');
-var datapassword = require('./user-password.json');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var fs= require('fs');
 
 const app = express();
 
@@ -36,17 +36,12 @@ var wrong = {
 nSQL("users")
 .model([
   { key: "id_user",type:"int",props:["pk","ai"]},
-  { key: "username",type:"string"}
-]);
-nSQL("password")
-.model([
-  { key: "id_user", type:"int",props:["pk","ai"]},
-  { key : "password", type :"string"}
+  { key: "username",type:"string"},
+  {key : "password", type:"string"}
 ])
 .connect() //Connect to DB
 .then(()=>{
   nSQL("users").query("upsert",data).exec();
-  nSQL("password").query("upsert",datapassword).exec();
 
  //Route
  app.get('/menu',(req,res)=>{
@@ -87,32 +82,45 @@ nSQL("password")
       console.log(rows);
     });
   });
+    
+  app.post('/api/register',(req,res)=>{
+     var username = req.body.username;
+     var password = req.body.password;
+//      var obj=[];
+     nSQL("users").query("select").where(["username","=",username]).exec().then(function(rows){
+        if(rows.length!=0){
+            res.redirect("/");
+            console.log("ID sudah terdaftar");
+        }
+         else{
+             nSQL("users").query("upsert",{username: username, password:password}).exec();
+             var jeson = {
+                 username : username,
+                 password : password
+             };
+             fs.readFile('./user-data.json',function func(err,data){
+                 var obj = JSON.parse(data);
+                 obj.push(jeson);
+                 var json = JSON.stringify(obj);
+                 fs.writeFile('./user-data.json',json,function fun(err){
+                     console.log(err);
+                 });
+             });
+                     console.log("ACC "+ username + " terdaftar");
+                 }
+             })
+     
+       
+  });    
 
   app.post('/api/login',(req,res)=>{ //Login Schema
     var username = req.body.username;
     var password = req.body.password;
-    nSQL("users").query("select").where(["username","=",username]).exec().then(function(rows){
+    nSQL("users").query("select").where([["username","=",username],"and",["password","=",password]]).exec().then(function(rows){
       if(rows.length!=0){
         // console.log(rows[0].id_user);
-        nSQL("password").query("select").where(["id_user","=",rows[0].id_user]).exec().then(function(rowpass){
-          // console.log(rowpass);
-          if(rowpass.length!=0){
-            if(password==rowpass[0].password){
-              req.session.user = rows[0];
-              console.log("User : "+ username + " authenticated");
-              return res.redirect('/menu');
-
-            }
-            else{
-              return res.redirect('/');
-              console.log("User : " + username + " salah password");
-            }
-          }
-          else{
-            return res.redirect('/');
-            console.log("User : " + username + " salah password");
-          }
-        });
+        req.session.user = rows[0];
+        return res.redirect('/');
       }
       else{
         return res.redirect('/');

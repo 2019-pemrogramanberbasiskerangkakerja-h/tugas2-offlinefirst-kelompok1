@@ -1,0 +1,27 @@
+[
+  {
+    "id_user": 1,
+    "username" : "jharisonn",
+    "password" : "12345"  
+  },
+  {
+    "id_user": 2,
+    "username" : "vanderwill",
+    "password" : "54321"  
+  },
+  {
+    "id_user": 3,
+    "username" : "cornelianat",
+    "password" :  "11111"
+  },
+  {
+    "id_user": 4,
+    "username" : "gambler",
+    "password" : "oopssss"  
+  },
+  {
+    "id_user": 5,
+    "username" : "hehehehe",
+    "password" : "cihuy"  
+  }
+]
