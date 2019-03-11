@@ -1,6 +1,7 @@
 //Initialized
 const express = require('express');
 const nSQL = require('nano-sql').nSQL;
+var jwt = require('jsonwebtoken');
 var data = require('./user-data.json');
 var bodyParser = require('body-parser');
 var session = require('express-session');
@@ -8,29 +9,13 @@ var fs= require('fs');
 
 const app = express();
 
-//Using Express-Session
-app.use(session({
-  secret : 'ahoy',
-  resave : true,
-  saveUninitialized : false
-}));
-
 //Using bodyparser
 app.use(bodyParser.urlencoded({
   extended : true
 }));
+app.use(bodyParser.json());
 
 app.use(express.static(__dirname+'/build'));
-
-//STATUS
-var ok = {
-  'status' : "ok",
-  'code' : 200
-}
-var wrong = {
-  'status' : "ok",
-  'code' : 401
-}
 
 //Creating Users & Password table
 nSQL("users")
@@ -45,29 +30,33 @@ nSQL("users")
 
  //Route
  app.get('/menu',(req,res)=>{
-   console.log("AAAA");
-   var sess= req.session.user;
-   console.log(sess);
-     res.sendFile(__dirname+'/build/menu/index.html');
+   res.sendFile(__dirname+'/build/menu/index.html');
  });
 
   app.get("/",(req,res)=>{
-    var sess = req.session.user; //Kalau ada session user redirect ke Menu, jika tidak redirect ke Login page
-    if(sess){
-      res.redirect('/menu');
+    var token = req.query.token;
+    if(!token){
+      console.log("Token empty");
+      res.sendFile(__dirname + '/build/index/index.html');
     }
     else{
-      res.sendFile(__dirname +  '/build/index.html');
+      jwt.verify(token,'ahoy',function(err,decoded){
+        if(err){
+          res.sendFile(__dirname + '/build/index/index.html');
+          console.log("Token session abis");
+        }
+        console.log("Token Verified");
+        res.redirect('/menu');
+      })
     }
-  });
+    });
 
   app.get('/logout',(req,res)=>{ //Logout Route
-    var sess = req.session.user;
-    if(sess){
-      req.session.user = null;
-      console.log(sess.username + " logout");
-      return res.redirect('/');
-    }
+    res.status(200).send({auth:false,token:null});
+  });
+
+  app.get('/register',(req,res)=>{
+    res.sendFile(__dirname+'/build/register/index.html');
   });
 
   app.get('/api/getUser',(req,res)=> { //Fetching data user
@@ -82,14 +71,14 @@ nSQL("users")
       console.log(rows);
     });
   });
-    
+
   app.post('/api/register',(req,res)=>{
      var username = req.body.username;
      var password = req.body.password;
 //      var obj=[];
      nSQL("users").query("select").where(["username","=",username]).exec().then(function(rows){
         if(rows.length!=0){
-            res.redirect("/");
+            res.status(404).send({message : "ID sudah terdaftar"});
             console.log("ID sudah terdaftar");
         }
          else{
@@ -106,25 +95,31 @@ nSQL("users")
                      console.log(err);
                  });
              });
-                     console.log("ACC "+ username + " terdaftar");
+             var token = jwt.sign({id:username},'ahoy',{expiresIn:86400});
+             res.status(200).send({auth:true,token:token});
+             console.log("ACC "+ username + " terdaftar");
                  }
              })
-     
-       
-  });    
+
+
+  });
 
   app.post('/api/login',(req,res)=>{ //Login Schema
     var username = req.body.username;
     var password = req.body.password;
+    console.log(req.body);
     nSQL("users").query("select").where([["username","=",username],"and",["password","=",password]]).exec().then(function(rows){
       if(rows.length!=0){
         // console.log(rows[0].id_user);
-        req.session.user = rows[0];
-        return res.redirect('/');
+        var token = jwt.sign({id: username},'ahoy', {
+          expiresIn : 86400
+        });
+        res.status(200).send({auth:true, token: token});
+        console.log(username + " berhasil login");
       }
       else{
-        return res.redirect('/');
-        console.log("Salah username & password");
+        res.status(404).send({message : "Wrong username/password"});
+        console.log("Salah username");
       }
     });
     return;
