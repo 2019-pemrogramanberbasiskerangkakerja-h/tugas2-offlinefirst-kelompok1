@@ -316,7 +316,7 @@ function getCookie(name) {
 }
 
 //Pengecekan doang
-fetch('http://localhost:3000/api/getUser')
+fetch('/api/getUser')
    .then(response => response.json())
    .then(datas=>{
      createDB.then(db =>{

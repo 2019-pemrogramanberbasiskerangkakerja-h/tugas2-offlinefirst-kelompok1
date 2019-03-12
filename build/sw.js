@@ -3,7 +3,7 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/4.0.0/workbox
 const baseUrl = location.origin;
 //Creating cache after fetching from server route
 workbox.routing.registerRoute(
-  new RegExp('http://localhost:3000/api/getUser'),
+  new RegExp('/api/getUser'),
   new workbox.strategies.CacheFirst()
 );
 
