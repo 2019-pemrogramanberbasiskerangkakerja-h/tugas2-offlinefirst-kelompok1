@@ -84,8 +84,9 @@ if ('serviceWorker' in navigator) { //creating Service Worker
           },
           method : 'POST',
           body : JSON.stringify(body)
-        }).then((resp)=>resp.json()).then((data)=>{
+        }).then((resp)=>resp.json()).then(async (data)=>{
           if(data.token!=null){
+            await insertDB(username.value,password.value);
             if(window.confirm("Silahkan login di user page")){
               window.location.replace("/");
             }
